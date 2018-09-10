@@ -1,0 +1,9 @@
+
+从 NEST.js 的实现角度来看，它似乎启用了webpack编译成es5，来完美执行所有es的新特性
+
+但在node v-8.11 中，对于es7以上的特性是不支持的，甚至在v-10.x中都是不支持的
+且如果要实现 import export的es6模块导入导出，需要添加 --experimental -modules 的形式，并且以 .mjs 结尾
+
+es6的Map类 和 es5 使用 {} 循环赋值的效率比较，相差10倍，所以这种写法几乎不推荐
+
+class let const 目前是node端主动实现并且性能与es5差不多

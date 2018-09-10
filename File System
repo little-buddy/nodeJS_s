@@ -1,0 +1,116 @@
+File System
+-------------
+* Threadpool Usage
+* WHATWG URL object support
+* Buffer API
+* class FSWatcher{
+    Event:'change',
+    Event:'error',
+    watcher.close()
+  }
+* class ReadStream{
+    Event:'close',
+    Event:'open',
+    readStream.bytesRead,
+    readStream.path
+  }
+* class Stats{
+    Stat Time Values
+  }
+* class WriteStream{
+  Event:'close',
+  Event:'open',
+  writeStream.bytesWritten,
+  wirteStream.path,
+}
+* access(path[,mode],callback)
+* accessSync(path[,mode])
+* appendFile(file,data[,options],callback)
+* appendFildSync(file,data[,options])
+* chmod(path,mode,callback)
+* chmodSync(path,mode)
+* chown(path,uid,gid,callback)
+* chownSync(path,mode)
+* close(fd,callback)
+* closeSync(fd)
+* constants
+* copyFile(src,dest[,flags],callback)
+* copyFileSync(src,dest[,flags])
+* createReadStream(path[.options])
+* createWriteStream(path[,options])
+* exists(path,callback) deprecated
+* existsSync(path)
+* fchmod(fd,mode,callback)
+* fchmodSync(fd,mode)
+* fchown(fd,mode,callback)
+* fchownSync(fd,mode)
+* fdatasync(fd,callback)
+* fdatasyncSync(fd)
+* fstat(fd,callback)
+* fstatSync(fd)
+* fsync(fd,callback)
+* fsyncSync(fd)
+* ftruncate(fd[,len],callback)
+* ftruncateSync(fd[,len])
+* futimes(fd,atime,mtime,callback)
+* futimesSync(fd,atime,mtime)
+* lchmod(path,mode,callback)
+* lchmodSync(path,mode)
+* lchown(path,uid,gid,callback)
+* lchownSync(path,uid,gid)
+* link(existingPath,newPath,callback)
+* linkSync(existingPath,newPath)(
+* lstat(path,callback)
+* lstatSync(path)
+* mkdir(path[,mode],callback)
+* mkdirSync(path[,mode])
+* mkdtemp(prefix[,options],callback)
+* mkdtempSync(prefix[,options])
+* open(path,flags[,mode],callback)
+* openSync(path,flags[,mode])
+* read(fd,buffer,offset,length,position,callback)
+* readdir(path[,options],callback)
+* readdirSync(path[,option])
+* readFile(path[,options],callback)
+* readFileSync(path[,option])
+* readlink(path[,options],callback)
+* readlinkSync(path[,options],callback)
+* readSync(fd,buffer,offset,length,position)
+* realpath(path[,options],callback)
+* realpathSync(path[,options])
+* rename(oldPath,newPath,callback)
+* renameSync(oldPath,newPath)
+* rmdir(path,callback)
+* rmdirSync(path)
+* stat(path,callback)
+* statSync(path)
+* symlink(target,path[,type],callback)
+* symlinkSync(path[,type])
+* truncate(path[,len],callback)
+* truncateSync(path[,len])
+* unlink(path,callback)
+* unlinkSync(path)
+* unwatchFile(filename[,listener])
+* utimes(path,atime,mtime,callback)
+* utimesSync(path,atime,mtime)
+* watch(filename[,options][,listener])
+  Caveats
+    Availability
+    Inodes
+    Filename Argument
+* watchFile(filename[,options],listenrer)
+* write(fd,buffer[,offset[,length[,position]]],callback)
+* wirte(fd,string[,options[,encoding]],callback)
+* writeFile(file,data[,options],callback)
+* writeFileSync(file,data[,options])
+* writeSync(fd,buffer[,offset[,length[,position]]])
+* wirteSync(fd,string[,position[,encoding]])
+* Constants
+  File Access Constants
+  File Open Constants
+  File Type Constants
+  File Model Constants
+
+112 - 31 [81] API 666其中有一半是分成同步与异步，大概功效在于callback
+
+

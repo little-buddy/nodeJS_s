@@ -86,3 +86,11 @@ sequencing of 一系列
 appropriate   适当的
 treated       处理
 internal      内部的
+
+
+if(ob!==obj){
+  return;
+}
+// code
+
+
