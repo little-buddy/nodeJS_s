@@ -1,0 +1,24 @@
+Global Objects{
+  Class:Buffer,
+  __diranme,
+    -> 路径到目录
+  __filename,
+    -> 路径到文件
+  clearImmediate(immediateObject),
+  clearInterval(intervalObject),
+  clearTimeout(timeoutObject),
+  console,
+  exports,
+  global,
+  module,
+  process,
+  require(),
+  setImediate(callback[,args]),
+  setInterval(callback,delay[,args]),
+  setTimeout(callback,delay[,args])
+}
+
+moduel.exports = exports
+
+以上方法并不需要 require(module)
+这是全局方法，global 才是全局对象，跟web的window一样

@@ -1,0 +1,233 @@
+Process 进程 | 存在命令行处理
+----------------------------
+* Process Events 【 8 】
+  The process object is an instance of EventEmitter
+  - beforeExit
+    Node.js empties its event loop and has no additional work th schedule
+    在node执行完 loop event之后推出前的监听，官方介绍用于执行一些异步处理，添加额外的处理程序
+
+     ~ 它的监听处理由 process.exitCode 的值指定 specfic
+     ~ prcess.exit()命令行的退出并不会触发
+     ~ 不能替代exit事件，只有在增加额外处理的时候[可以]
+     process.on('beforeExit',code:exitCode=>{})
+
+  - disconnect
+    node.js process is spawned with an IPC channel【Child Process、Cluster】,the 'disconnect' event will be emitted
+    when IPC channel is closed
+
+  - exit 
+    emitted -> when Node.js process is about to exit as a result of either
+      process.exit() 被调用
+      Node.js event loop no longer having any additional work to perform
+
+      process.exit()会立马退出，终端 loop event
+      process.on('exit',code=>{})
+
+  - message 【 TODO 待验证 】
+    process.on('message',(message:object,sendHandle<Handle object>){
+        // parent process.on
+        // child process.send
+        // sendHandle 可以是 net.socket or net.server or undefined
+        // 这里的msessage 还可能跟发送不一致
+    })
+
+  - rejectionHandled
+    在 loop event 触发了 Promise.catch()
+    process.on('rejectionHandled',(Promise)=>{
+      // 这里的Promise 是一个已经rejected的状态，且是唯一参数
+    })
+    而这个Promise 会在 unhandledRejection 中预先触发
+
+    同步代码块中，rejection的增加会触发 uncaughtException
+    异步代码块中，rejection的增加会触发 unhandledRejection
+
+  - uncaughtException
+    .WARNNING
+    有一个默认行为，打印出stack trace and stderr
+    监听就是覆盖这个行为
+    这个的用处在于捕捉异常，process会退出，用于释放内存防止溢出
+
+  - unhandledRejection
+    process.on('unhandleRejection',(reason,p)=>{
+      // reason <Error>|<any>
+      // p -> rejected Promise
+    })
+    可以通过这知道是哪个Promise抛出了异常
+    catch 会阻止这个事件被触发
+
+  - warnning
+    process.on('warning',(warning)=>{
+      // 这个warning 是唯一参数 { name , message , stack }
+    })
+
+  - Signal Events
+    // 【 todo study 】
+
+process{
+  abort()
+    -> exit node
+  arch
+    -> os的CPU架构 arm|arm64|ia32|mips|mipsel|ppc|ppc64|s390|s390x|x32|x64
+  argv
+    -> 包含命令行参数的数组,[process.execPath:执行环境路径|node路径,__filename:文件路径,...args]
+  argv0
+    -> read-only argv[0]
+  channel
+    -> 如果process是有IPC创建的，则process.channel 指向IPC的引用
+  chdir(directory)
+    -> 改变当前工作目录，跟 bash 的 cd|mv 很想
+  config
+    -> 编译当前node版本的一些配置信息，not read-only
+  connected
+    -> 被IPC 创建，值为true，可通过process.send()发送消息，process.disconnected()断开，值为false
+  cpuUsage([previousValue]):{user,system}
+    -> 单位毫秒 {user,system} 表示 process存在的时间
+  cwd()
+    -> 当前路径
+  disconnect()
+    -> 断开 IPC 进程，会触发 disconnect
+  emitWarning(warning[,options])
+    add v-8.0.0
+    -> warning:<string>|<error>    
+       options:{
+         type:string,     警告类型，默认warning
+         code:string,     唯一标识
+         ctor:Function,   默认process.emitWarning,可选参数限制创建的栈
+         detail:string    详情，添加一个描述嘛
+       }
+  emitWarning(warning[,type[,code]][,ctor])
+    add v6.0.0
+    -> 与8.0的区别就是一个是以对象最为参数，一个是结构的参数
+      基本可以认为 deprecated
+      avoiding duplicate warning为每个warning添加一个flag
+  env
+    -> 添加任意值给env，最终都会被implicitly convert to string
+      在windows 上env 并不区分大小写，为了统一最好还是尽量避免同大写的重复property
+  execArgv
+    -> 数组，返回node 命令的 可选 --options
+  execPath
+    -> node命令的路径
+  exit([ccode])
+    -> 假如code 不是默认的0，也不等process.exitCode,那么会等待所有的监听回调完成再退出
+  exitCode
+   -> 作为 beforeExit exit 2个事件回调的参数，并且是唯一参数
+ 
+---window|Android 无效方法
+  getegid()
+    -> returns the numerical group identity of process ID
+  geteuid()
+    -> returns the numerical effective user identity of the process
+  getgid()
+  getgroups()
+  getuid()
+  initgroups(user:string|number,extra_group:string|number)
+
+  setegid(id)
+  seteuid(id)
+  setgid(id)
+  setgroups(groups)
+  setuid(id)
+---  
+  hrtime([time:Array<>]):Array<>
+    -> time 是一个可选的参数，但是必须是前一个的hrtime()执行结果，跟cpuUsage 很像
+  kill(pid[,signal])
+    -> 与single Events 有关联 [ todo study ]
+  mainModule
+    -> require.main 通常main module在运行时会改变，而require.main始终指向原始的main，一般情况2者互等
+  memoryUsage()
+    -> return {
+      rss:integer,
+      heapTtal:integer,
+      heapUsed:integer,
+      external:integer
+    }
+    内存使用情况，heapTotal heapUsed refer to V8; external refers to C++
+
+  nextTick(callback[,...args])
+    -> 添加到下一次的时间循环队列开头，比IO优先级高
+  noDeprecation
+    -> --no-deprecation 的命令行选型的process中的表现形式
+  pid
+    -> 当前process的 ID
+  platform
+    -> aix|darwin|freebsd}linux|openbsd|sunos|win32
+  ppid
+    -> parent processID
+  release
+    -> 当前node的版本
+    {
+      name:'node',
+      sourceUrl:源文件网络地址,
+      headersUrl:头-网络地址,
+      lts:LTS版本
+        ‘Argon’ 4.2.0
+        ‘Boron’ 6.9.0
+        'Carbon' 8.9.1
+    }
+  send(message[,sendHandle[,options]][,callback])
+    ->
+  stderr
+    -> net.Socker Duplex stream
+  stdin
+    -> process.stdin.on('readable'|'end')
+      process.stdin.resume()
+  stdout
+    A note on process/IO 
+  throwDeprecation
+  umask([mask])
+  uptime()
+  version
+  versions
+  Exit Code
+}
+
+比如 stdin 就是用于 node端，程序调试的
+
+你会发现一个很奇葩的事情就是，eventEmitter 需要 require('events')
+但是呢~~process extends EventEmitter的，却不需要require。神奇
+
+这里的process其实是主线程，而child_process是子线程，模拟了多线程
+然后 一般的代码是自动在 process中跑的
+所以也就没有了 java public static void main(String[] args){}
+对于web项目其实也有，只不过封装掉了，然后你自己的模块封装处理，意味没有接触main函数
+则main函数就不是必须的
+
+到现在我也没有明白IPC channel 到底是个啥
+Duplex 是个啥
+
+看这个官网到是有点像当年学英语，把单词列出来，然后一一翻词典一样的
+
+
+[生词]
+  channel 通道、途径
+  explicitly 明确地
+  be invoked with 被调用
+  serialization 序列化
+  parsing 句法分析
+  course 进程
+  gained 捕获，收获，增长
+  notion 概念、想法、意见
+  ever-growing 不断增长
+  reflect 引出、反射
+  periodically 周期性地
+  upon 在上面
+  uncaught 未捕获
+  resume 再开始
+  restore 招数
+  equivalent 同等
+  inherently 内在的
+  recursion 循环
+  attempting 企图
+  upgreade 改进
+  corrupted 宕机
+  be encapsulated as 作为...被包含
+  propagated 繁殖
+  suboptimal 次优解的
+  in contrast 相对的
+  representation 说明
+  illustrated 插图
+  implicitly 含蓄地
+  convert 转换
+  retrieving 取回
+  assume 假想
+  experimental 实验性的

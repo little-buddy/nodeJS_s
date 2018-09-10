@@ -1,0 +1,88 @@
+Events
+--------
+* Passing arguments and this to listeners
+* Asynchronous vs. Synchronous
+* Handling events only once
+* Error events
+* Class:EventEmitter
+  Class EventEmitter{
+    static listenerCount(emitter,eventName) deprecated
+      -> 用于返回某个发射器的事件监听数量
+    static defaultMaxListeners
+      ->default=10
+        -setMaxListeners  改变的时候要小心，因为它是一个单例方法
+    addListener(eventName,listener){}
+    emit(eventName[,args]){}
+      -> args 似乎用于提供一个执行顺序标记
+    eventNames(){}
+      -> 返回所有的注册事件名
+    getMaxListeners(){}
+      -> 返回的是 defaultMaxListeners，单个事件最多的监听数量
+    listenerCount(eventName){}
+      -> 某个事件的监听数量
+    listeners(eventName){}
+      -> 复制一份改事件的所有监听数组
+    on(eventName,listener){}
+      -> EventEmitter.prototype.on = EventEmitter.prototype.addListener;
+    once(eventName,listener){}
+    prependListener(eventName,listener){}
+      -> 在listeners array 前添加listerner
+    prependOnceListener(eventName,listener){}
+    removeAllListener([eventName]){}
+    removeListener(eventName,listener){}
+    setMaxListener(n){}
+  }
+
+对于 error 事件需要主动监听 on('error',()=>{}),需要自己去实现
+加入没有实现的事件，执行new Error() 会造成node.js crash
+
+导入
+```
+const EventEmitter = require('events')
+```
+内置的eventName 事件
+  newListener
+  removeListener
+
+  别切只能用在once里面
+  for example
+  cosnt emitter = new EventEmitter()
+  emitter.once('newListener',(event,listener)=>{
+    // 我觉得这个 newListenre 事件真的鸡肋，还需要switch-case的形式，唯一的用处就是初始化添加默认事件
+  })
+
+  removeListener 这个事件会在listenre删除之后触发
+  有点像生命周期事件
+
+  就是在回调内部进行删除，listeners 依旧会执行完成，因为emit 是一次性获取数组去触发的
+  所以在回调内删除监听并不能阻止原 listeners array的中断
+
+
+
+# Tip:
+* any values returned by the called listeners are ignored and discarded.
+* function 是根据上下文环境户变化的，而arrow函数是保留创建时的上下文环境
+* node 中 setImmediate 替代web的 setTimeout OR process.nextTick()
+process.nextTick 的优先级要比 setImmediate 高，所以即使后写 tick也是tick先执行
+process.nextTick -> idle 观察者
+setTimeout       -> IO 观察者
+setImmediate     -> check 观察者
+异步执行，不是一个定时器
+
+事件驱动 还是妙的，一个EventEmitter 就像 global 一样
+
+stability     稳定性
+proven        经过证明
+idiomatic     惯用语法
+architecture  建筑理论
+emitter       发射器 /ɪ'mɪtə/
+expose        揭露，表明
+synchronized  同步锁
+trigger       扳机，触发 /ˈtrɪgə(r)/
+arbitrary     随意的、武断的
+ordinary      普通的
+proper        适当的、合适的
+sequencing of 一系列
+appropriate   适当的
+treated       处理
+internal      内部的
