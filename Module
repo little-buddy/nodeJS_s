@@ -1,0 +1,140 @@
+Modules
+---------
+  each file is treated as a separate module
+  variablbs local to the module will be private
+  exports will not modify module,must use module.exports
+  the module system is implemented in the require('module')
+Accessing the main Module
+  -> 当一个文件直接从node运行。request.main is set to its module.
+    so you can determine whether a file has been run directly by testing 
+      -> requesr.main === module .
+      -> __filename === request.main.filename
+Addenda:Package Mananger Tips
+  -> 有1个package请求的版本冲突问题
+     package require的路径问题 -> 
+     添加 /usr/lib/node_modules to -> $NODE_PATH 环境变量,设置全局包
+     最终通过把分散的package 放在一个统一的目录下 node_module,并且只要require，它就会找到相应的package
+All Together
+  -> 路径表达与模块的加载机制
+  require( X ) from module at path Y
+    1、如果 X 是个核心模块就返回某块否则nothing
+    2、x  begin with '/' 文件系统的根
+    3、x begin with './' '../',要么 loaded_as_file(Y+X),要么 loaded_as_director(Y+X)
+    4、LOAD_NODE_MODULES(X,dirname(Y))
+    5、抛出 not found
+
+    load_as_file -> 
+      x       -> js text
+      x.js    -> js text
+      x.json  -> js Object
+      x.node  -> binary addon
+
+      load_index ->
+        x/index.js
+        x/index.json
+        x/index.node
+
+      load_as_director ->
+        1、 if x/package.json is a file
+          a. parse x/package.json,and look for 'main' field
+          b. let M = X + (json main field)
+          c. LOAD_AS_FILE(M)
+          D. LOAD_INDEX(M)
+        2、load_index(X)
+
+      其实就是先在当前工程目录以文件形式找，找不到再以目录形式找
+      还是找不到就去当前目录的node_modules 下找
+      还是找不到再去当前目录的上一级node_module找。直到/node_modules
+      并且每次查找都是以当前文件路径为查找源找不到就跳进了node_modules
+
+
+Caching
+  模块在第一次加载之后就会被缓存，之后的任意一致require获得的都是第一次require的对象
+  它避免了cycles的加载模块错乱
+Module Caching Caveats
+  对于用不同的名字去请求同一模块会返回不同的对象，某块的单例必须模块名一致
+Core Modules
+  内建的模块会有优先加载
+Cycles
+  第二次require ，并不会阻断那个文件的加载
+File Modules
+  -> all together
+Folders as Modules
+  -> 当前目录的加载 package.js
+    {
+      name:'library-name',
+      main:'./lib/library-name.js'
+    }        
+    没有package.json 按照 load_index 来 
+Loading from node_modules Folders
+  -> all together
+Loading from the global Folders
+  -> if the node_path environment variable is set to a colon-delimited list of absolute paths,
+     then Node.js will search those paths for modules if they are not found eleswhere.
+     一般nodejs 会在 $HOME/.node_modules
+                   $HOME/.node_libraries
+                    $PREFIX/lib/node
+    进行全局 node library的查找
+    仍旧鼓励奖依赖放在本地，这样加载模块会跟快更可靠
+The module wrapper
+  -> (function(exports,require,module,__filename,__dirname)){
+    // 任意一个模块就像这样被包裹着
+    优点：用高阶别的变量代替了全局变量
+  }
+The module scope
+  __dirname
+    -> 目录路径
+  __filename
+    -> 文件路径
+  exports
+    -> module.exports 的引用
+  module
+    -> defining what a module exports and make avaliable through require()
+  require()
+    require.cache
+      -> 记录了每个模块的导入导出情况，用delete删除cache里面的对象，再次require会reload
+    require.extensions [ deprecated ]
+      -> 用于编译那些非js模块，如今有更好的实现方式
+    require.resolve(require[,options])
+      -> 只是用模块查找算法去查找模块而不是加载，最终返回查找模块的路径
+      而options 只是有一个 paths:Array<> -> 每一个都做为路径开头查找一遍
+    require.resolve.pahts(requres)
+      -> 返回当前环境的paths 情况
+The modlue Object
+  module.children
+  module.exports
+    -> module.exports 模块必须立即执行，否者是不会执行的
+    exports shortcut
+  module.filename
+  module.id
+  module.loaded
+  module.parent
+  module.pahts
+  module.require(id)
+The Module Object
+  module.builtinModules
+
+[生词]
+  treated 对待
+  separate 单独的
+  access 获取、接近、入口
+  semantics 语义学
+  reasonable 明智的、智能的
+  directory 目录
+  modification 修改(n.)
+  collide 抵触，碰撞
+  encountered 遭遇
+  conflicts 冲突、矛盾
+  symlinked 相连的
+  furthermore 而且
+  lookup 查找
+  optimal 最好的，理想的
+  algorithm 算法
+  preferentially 优先地
+  colon-delimited 冒号分隔
+  historic 历史性的
+  reliably 可靠的
+  achieves 实现
+  convenience 方便
+  accessible 容易达到的
+  desired 渴望的

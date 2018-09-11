@@ -1,0 +1,8 @@
+{
+  "name":"hello",
+  "main": "./pathTest.js"
+}
+
+// 给路径起别名，是对 es6 module有效
+// 对于commonJS的路径无效，它依旧是按官方的规则进行查找
+core module -> / ./ ../ -> node_modules,可以通过module.paths路径进行配置

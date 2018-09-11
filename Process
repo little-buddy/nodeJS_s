@@ -3,6 +3,7 @@ Process 进程 | 存在命令行处理
 * Process Events 【 8 】
   The process object is an instance of EventEmitter
   - beforeExit
+    add v0.11.12
     Node.js empties its event loop and has no additional work th schedule
     在node执行完 loop event之后推出前的监听，官方介绍用于执行一些异步处理，添加额外的处理程序
 
@@ -14,8 +15,10 @@ Process 进程 | 存在命令行处理
   - disconnect
     node.js process is spawned with an IPC channel【Child Process、Cluster】,the 'disconnect' event will be emitted
     when IPC channel is closed
+    用于父子process的通信
 
   - exit 
+    add v0.1.7
     emitted -> when Node.js process is about to exit as a result of either
       process.exit() 被调用
       Node.js event loop no longer having any additional work to perform
@@ -61,7 +64,25 @@ Process 进程 | 存在命令行处理
     })
 
   - Signal Events
-    // 【 todo study 】
+    -> Signal Events will be emitted when the Node.js process receives a signal.
+    当执行 process.stdin.resume() 时
+    SIGUSR1 --> debuger node.js 时的时候监听，并不影响node的启动
+    SIGTERM and SIGINT --> 在非windows平台有一个默认行为，主动监听会覆盖这个默认行为
+    SIGPIPE --> it is ignored by default.It can have a listener installed.
+    SIGHUP --> 在window平台10s后终止，其余平台立即终止
+    SIGTERM ——-> 不支持window平台
+    SIGINT --> Ctrl + c 
+    SIGBREAK -->  window Ctrl + break ; non-window 会有监听但无法主动去触发
+    SIGWINCH --> 
+    SIGKILL --> cannot have a listener installed,it will unconditionally terminate Node.js on all platforms
+    SIGSTOP --> cannot have a listener installed.
+    SIGBUS，SIGFPE，SIGSEGV and SIGILL
+    Note -> window 平台不支持发送信号
+    
+    process.kill 的时候可以发送一个信号，默认 SIGTERM
+    一旦执行回调监听 -> 这个process就不会被杀掉而是保留了，这与exit 不一样，exit是无条件退出
+    感觉这类监听一般都是用于 退出时的内存释放
+
 
 process{
   abort()
@@ -127,6 +148,13 @@ process{
   setgid(id)
   setgroups(groups)
   setuid(id)
+  
+  egid    -> 
+  euid    -> 有效用户ID，最初执行程序时用的Id
+  gid     -> 
+  groups  ->
+  uid     -> 真实用户ID，程序执行过程中的Id
+
 ---  
   hrtime([time:Array<>]):Array<>
     -> time 是一个可选的参数，但是必须是前一个的hrtime()执行结果，跟cpuUsage 很像
@@ -145,6 +173,7 @@ process{
 
   nextTick(callback[,...args])
     -> 添加到下一次的时间循环队列开头，比IO优先级高
+    模拟同一个应用在CPU上分段执行
   noDeprecation
     -> --no-deprecation 的命令行选型的process中的表现形式
   pid
@@ -178,7 +207,20 @@ process{
   uptime()
   version
   versions
-  Exit Code
+  Exit Code: 退出代码的意义
+    1 -> Uncaught Fatal Exception
+    2 -> Unused(reserved by bash for builtin misuse)
+    3 -> Internal JavaScript Parse Error
+    4 -> Internal JavaScript Evaluation Failure
+    5 -> Fatal Error
+    6 -> Non-function Internal Exception Handler
+    7 -> Internal Exception Handler Run-Time Failure
+    8 -> Unused,前几个版本使用
+    9 -> Invalid Argument
+    10 -> Internal JavaScript Run-Time Failure
+    12 -> Invalid Debug Argument
+    >128 Signal Exits
+  
 }
 
 比如 stdin 就是用于 node端，程序调试的
@@ -191,6 +233,17 @@ process{
 所以也就没有了 java public static void main(String[] args){}
 对于web项目其实也有，只不过封装掉了，然后你自己的模块封装处理，意味没有接触main函数
 则main函数就不是必须的
+
+node 的命令行程序标准的开场白
+process.stdin.resume()
+process.stdin.setEncoding('utf8')
+process.stdin.on('data',(chunk)=>{
+  process.stdout.wirte()
+  process.stdin.emit('end')
+})
+process.stdin.on('end',()=>{
+  process.stdout.wirte('end')
+})
 
 到现在我也没有明白IPC channel 到底是个啥
 Duplex 是个啥
@@ -231,3 +284,16 @@ Duplex 是个啥
   retrieving 取回
   assume 假想
   experimental 实验性的
+  parse 解析
+  fatal 致命的
+  shomehow 某种方式
+  evaluated 以...估值
+  rare 罕见的，珍奇的
+  block 的块 从区域来说
+  chunk 的块 从内容来说
+  signal 信号
+  various 许多的
+  terminate 终止、结束
+  terminal 终端
+  delivered 递送
+  abort 终止
