@@ -102,14 +102,30 @@ The module scope
       -> 返回当前环境的paths 情况
 The modlue Object
   module.children
+    -> 当一个模块被别人调用，这个模块会出现调用这个模块的children数组中
   module.exports
     -> module.exports 模块必须立即执行，否者是不会执行的
-    exports shortcut
+  exports shortcut
+    function require(/*...*/){
+      const module = { exports:{} }
+      ((module,exports)=>{
+        function someFunc(){}
+        exports = someFunc
+        module.exports = someFunc;
+      })(module,module.exports)
+      return module.exports;
+    }
+    所以 web.js 只要添加了module.exports 就是node模块且能被node使用
   module.filename
+    -> __filename
   module.id
+    -> __filename
   module.loaded
+    -> 模块是否已经导入
   module.parent
+    -> 这个模块第一次被请求的那个模块
   module.pahts
+    -> 查找这个模块的路径，对于个别模块可以通过添加这个参数来达到特殊查找效果
   module.require(id)
 The Module Object
   module.builtinModules

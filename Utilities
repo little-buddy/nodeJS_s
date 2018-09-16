@@ -1,0 +1,169 @@
+Util
+------
+class util{
+  callbackify(original)
+    -> original:Async function or a function return a Promise
+    ```
+      const util = require('util')
+      async function fn(){
+        return 'hello world'
+      }
+      const callbackFunction = utils.callbackify(fn)
+      callbackFunction((err,ret)=>{
+        if(err) throw err;
+        console.log(ret)
+      })
+    ```
+  这个回调是异步执行的，并且有一个栈追踪上的限制。如果回调抛出异常，这个process将会触发'uncaughtException'，
+  如果没有处理回调就会直接退出
+  假如传入的是一个返回的promise，那么 
+    err.reason = reject 返回的值
+    ret = resolve 返回的值
+    假如没有返回值未指定参数，是一个空对象，未被激活的另一个值是null
+
+  debuglog(section:string)
+    -> 需要先在 NODE_DEBUG 里配置声明
+    then
+      ```
+      const util = require('util')
+      const debuglog = util.debuglog('foo') //这里的foo 需要预先在 NODE_DEBUG配置
+      debuglog(string)
+      ```
+
+  deprecate(function,string):Function
+    -> 包裹一个方法，然后输出不推荐使用警告然后依旧执行原方法，是一个即将废弃api的警告thunk方法
+    --no-deprecate --no-warnings process.noDeprecation=true 被这个函数修饰的函数就会等同于原方法
+    --trace-deprecation --trace-warnings process.traceDeprecation = true 包裹有效
+    --throw-deprecation process.throwDeprecation = true 一旦有被这方法包裹的方法调用就会抛出异常
+
+  format(format[,...args])
+    -> 返回指定格式的字符串
+    %s string
+    %d isNumber(interge of floating point value) 高级语言 d 仅代表整型
+    %i integer
+    %f Floating point value
+    %j 用JSON, 作用跟 JSON.stringify 差不多
+    %o object，普通的js对象格式 === util.inspet(object,{showHidden:true,depth:4,showProxy:true})
+    %0 object, === util.inspect(object)
+    %% 表示百分号
+
+    如果formt的时候没有给出争取的参数，则format字符串会保留
+    有多个参数的时候，他们会以某种格式被链接在一起
+
+  getSystemErrorName(err:number):string
+    add 8.12.0
+    - my node version is 8.11.2
+
+  inherits(constructor,superConstructor)
+    -> 不被鼓励使用
+    其实从这个api实现就可以看出来，原本没有class的时候的继承实现。如今已经被class的语法糖笼罩着，别说还真的甜
+    ```
+      const util = require('util')
+      const EventEmitter = require('events')
+
+      function MyStream(){
+        EventEmitter.call(this)  // super(this)
+      }
+      util.inherits(MyStream,EventEmitter)
+
+      MyStream.prototype.write = function(data){
+        this.emit('data',data)
+      }
+
+      const stream = new MyStream()
+
+      console.log(stream instanceof EventEmitter)
+      console.log(MyStream.spure_ ===EventEmitter) // 这里的super_ 是由 inherits 提供的
+
+      stream.on('data',function(data)=>{
+        console.log(`Received data: "${data}"`)
+      })
+      stream.write('It works!')
+
+      在这里我甚至体会到了,stream的构建
+    ```
+  inspect(object[,options])
+    -> options{
+      showHidden[default:false] 如果为true，对象不可枚举的symbols和properties 将出现在格式化结果中
+      depth:number 递归调用的次数，感觉像是深度遍历的层数
+      colors[default:false] 输出格式和ANSI color 一致
+      customInspect[default:true] 如果false util.inspect.custom 应该失效了
+      showProxy[default:false] 如果为true，就是一个proxy对象，能够拦截对象本身的一些操作
+      maxArrayLength[default:100] 对于数组默认展示多少条数据，null展示所有
+      breakLength[default:60]
+    }
+    这个方法返回一个表示对象的字符串
+
+    Customizing util.inspect colors
+      default:
+        number - yellow
+        boolean - yellow
+        string - green
+        date - magenta
+        regexp - red
+        null - bold
+        undefined - grey
+        special - cyan
+        name - no styling
+      white grey black blue cyan green magenta red yellow bold italic underline inverse
+
+    Custom inspection functions on object
+      obj[util.inspect.custom](depth,options){}
+    util.inspect.custom
+    util.inspect.defaultOptions
+
+    不太懂，因为命令行下的ndoe输出都是字符串模样...
+  promiseify(original)
+    -> 与callbackify 还是有区别的
+    callbackify 返回一个Function  -> fn().then((err,ret)=>{})
+    promiseify  返回一个Promise   -> fn().then(value=>{})
+
+    doSomething[util.promise.custom] 当调用 util.promiseify(doSomething) 会返回这个预先定义好的
+
+  TextDecoder
+    ignoreBOM
+    fatal
+    encoding
+    decode
+  TextEncoder
+    encode()
+    encoding()
+DEPRECATED API
+---------------
+  _extend(target,source) -> Object.assign 代替
+  debug(string)          -> console.error 
+  error([...strings])    -> console.error
+  isArray(object)        -> Array.isArray
+  isBoolean(object)      -> 
+  isBuffer(object)       -> Buffer.isBuffer
+  isDate(object)         
+  isError(object)
+  isFunction(object)
+  isNull(object)
+  isNullOrUndefined(object)
+  isNumber(object)
+  isObject(object)
+  isPrimitive(object)
+  isRegExp(object)
+  isString(object)
+  isSymbol(object)
+  isUndefined(object)
+  log(string)           -> console.log
+  print([...string])
+  pust([...string])
+
+  这里其实可以看出node在初期构建的过程中 类型的概念是模糊的
+}
+
+  原来 node 是不支持promise的，所以callbackify promiseify还有效
+  但现在es6 实现了Promise，这几个api...
+【生词】
+  existence 存在
+  representation 表示
+  generic 普通的
+  non-enumerable 不可枚举
+  inherits 继承
+  inspect 检查
+  recures 递归
+  introspected 内观
+  aspects 部分

@@ -1,0 +1,57 @@
+Timers
+--------
+ global module, not need require
+ 类似 web Browsers的实现，用法类似但实现不一样在nodeJS
+
+- Class Immediate
+  setImmediate 创建一个Immediat 对象
+  clearImmediate 清楚这个对象 -> cancel the scheduled actions
+
+- Class Timeout
+  created by setTimeout and setInterval
+  It can be passwd to clearTimeout() or clearInterval() in order to cancel the scheduled actions  
+
+  timeout.ref:Function
+    多次调用无影响，只要timeout被激活，就要求nodeJS事件循环不退出
+  timeout.unref:Function
+    在timeout对象回调触发前，多次调用这个函数时没有影响的
+    作用，如果没有保持 事件循环的激活状态，这个process会退出
+    调用这个方法意味着调用的那一次 period of Event end，就会退出process，似乎一般默认都是ref行为
+
+-Scheduling Timers
+  setImmediate(callback[,args])
+    the callback to call at the end of this turn of the Node.js Event Loop
+    这个回调执行在I/O 事件之后
+    多次调用，每次调用的callback会加入一个queue
+    如果callback不是一个Function，a TypeError will be thrown
+
+  setInterval(callback,delay[,args])
+
+  setTimeout(callback,delay[,args])
+    如果 1>delay>2147482647 ,delay = 1
+
+
+
+- Canceling Timers
+  clearImmediate(immediat)
+
+  clearTimeout(timeout)
+
+  clearInverval(timeout)
+
+
+  utils.promiseify() 可以将一个变量值封装成Promise 对象
+  ```
+    const setImmediatePromise = util.promiseify(setImmediate)
+    setImmediatePromise([options]).then([options]=>{
+      // This is executed after all I/O callbacks
+    })
+  ```
+
+
+
+【生词】
+  so longas as 只要
+  period of time 时间周期
+  turn of 转弯
+  make no guarantees 无保证/保修
